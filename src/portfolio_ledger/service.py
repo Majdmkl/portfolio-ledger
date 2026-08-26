@@ -13,6 +13,7 @@ from portfolio_ledger.domain.errors import (
     PortfolioNotFoundError,
 )
 from portfolio_ledger.domain.models import Instrument, Portfolio, Trade, TradeDirection
+from portfolio_ledger.domain.pnl import Position, calculate_position
 from portfolio_ledger.storage.repository import Repository
 
 
@@ -110,3 +111,25 @@ def list_trades(
             pairs.append((trade, instrument))
 
     return sorted(pairs, key=lambda p: p[0].timestamp)
+
+
+def get_portfolio_pnl(
+    repo: Repository,
+    portfolio_name: str,
+    marks: dict[str, Decimal],
+) -> list[tuple[Instrument, Position, Decimal | None]]:
+    """Return P&L for every instrument in a portfolio that has at least one trade.
+
+    marks maps symbol -> mark price for unrealized P&L. Instruments without a
+    mark entry get None, which the render layer shows as 'n/a' (never zero).
+    """
+    portfolio = _resolve_portfolio(repo, portfolio_name)
+    result: list[tuple[Instrument, Position, Decimal | None]] = []
+    for instrument in repo.list_instruments(portfolio.id):
+        trades = repo.list_trades(instrument.id)
+        if not trades:
+            continue
+        position = calculate_position(instrument.id, instrument.symbol, trades)
+        mark = marks.get(instrument.symbol)
+        result.append((instrument, position, mark))
+    return result
