@@ -1,12 +1,8 @@
-"""Typer CLI application.
-
-Each command instantiates a MemoryRepository for its lifetime. Persistence
-across invocations is added in step 8 (json_store) with no changes required
-to this file's command signatures.
-"""
+"""Typer CLI application."""
 
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -15,7 +11,9 @@ from portfolio_ledger import service
 from portfolio_ledger.cli import render
 from portfolio_ledger.domain.errors import PortfolioLedgerError
 from portfolio_ledger.domain.models import TradeDirection
+from portfolio_ledger.storage.json_store import JsonStore, SchemaVersionError
 from portfolio_ledger.storage.memory import MemoryRepository
+from portfolio_ledger.storage.repository import Repository
 
 app = typer.Typer(help="portfolio-ledger: track trades and compute P&L.")
 portfolio_app = typer.Typer(help="Manage portfolios.")
@@ -27,9 +25,37 @@ app.add_typer(instrument_app, name="instrument")
 app.add_typer(trade_app, name="trade")
 
 
-def _repo() -> MemoryRepository:
-    """Return a fresh repository. Replaced by JsonStore in step 8."""
-    return MemoryRepository()
+class _State:
+    def __init__(self) -> None:
+        # Default used only when commands are invoked without the app callback
+        # (e.g. during testing). In normal CLI use the callback always runs first.
+        self.repo: Repository = MemoryRepository()
+
+
+_state = _State()
+
+
+@app.callback()
+def configure(
+    data_file: Annotated[
+        Path,
+        typer.Option(
+            "--data-file",
+            envvar="PORTFOLIO_LEDGER_DATA",
+            help="Path to the JSON data file.",
+            show_default=True,
+        ),
+    ] = Path("portfolio_ledger_data.json"),
+) -> None:
+    try:
+        _state.repo = JsonStore(data_file)
+    except SchemaVersionError as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+
+def _repo() -> Repository:
+    return _state.repo
 
 
 def _abort(message: str) -> None:
@@ -42,9 +68,7 @@ def _parse_marks(raw: list[str]) -> dict[str, Decimal]:
     marks: dict[str, Decimal] = {}
     for entry in raw:
         if "=" not in entry:
-            _abort(
-                f"Invalid --mark {entry!r}. Expected SYMBOL=PRICE, e.g. AAPL=185.50"
-            )
+            _abort(f"Invalid --mark {entry!r}. Expected SYMBOL=PRICE, e.g. AAPL=185.50")
         symbol, _, price_str = entry.partition("=")
         symbol = symbol.strip().upper()
         if not symbol:
