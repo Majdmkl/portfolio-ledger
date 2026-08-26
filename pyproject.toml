@@ -11,6 +11,9 @@ dependencies = [
     "rich>=13",
 ]
 
+[project.scripts]
+pledger = "portfolio_ledger.cli.app:app"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8",

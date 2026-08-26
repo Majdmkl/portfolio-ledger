@@ -34,11 +34,11 @@ class InsufficientPositionError(PortfolioLedgerError):
 
 
 class PortfolioNotFoundError(PortfolioLedgerError):
-    """Raised when a portfolio ID does not match any stored portfolio."""
+    """Raised when a portfolio cannot be found by ID or name."""
 
-    def __init__(self, portfolio_id: UUID) -> None:
-        self.portfolio_id = portfolio_id
-        super().__init__(f"Portfolio not found: {portfolio_id}")
+    def __init__(self, identifier: str) -> None:
+        self.identifier = identifier
+        super().__init__(f"Portfolio not found: {identifier!r}")
 
 
 class DuplicatePortfolioError(PortfolioLedgerError):
