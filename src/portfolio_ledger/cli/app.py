@@ -37,6 +37,29 @@ def _abort(message: str) -> None:
     raise typer.Exit(code=1)
 
 
+def _parse_marks(raw: list[str]) -> dict[str, Decimal]:
+    """Parse a list of 'SYMBOL=PRICE' strings into a symbol-to-Decimal map."""
+    marks: dict[str, Decimal] = {}
+    for entry in raw:
+        if "=" not in entry:
+            _abort(
+                f"Invalid --mark {entry!r}. Expected SYMBOL=PRICE, e.g. AAPL=185.50"
+            )
+        symbol, _, price_str = entry.partition("=")
+        symbol = symbol.strip().upper()
+        if not symbol:
+            _abort(f"Missing symbol in --mark {entry!r}")
+        try:
+            price = Decimal(price_str.strip())
+        except InvalidOperation:
+            _abort(f"Invalid price in --mark {entry!r}: {price_str!r} is not a number")
+            raise  # unreachable
+        if price <= 0:
+            _abort(f"Mark price must be positive in --mark {entry!r}")
+        marks[symbol] = price
+    return marks
+
+
 def _parse_decimal(value: str, label: str) -> Decimal:
     """Parse a string to Decimal, aborting with a clear message on failure."""
     try:
@@ -180,3 +203,30 @@ def trade_list(
         _abort(str(exc))
         return
     render.render_trades(pairs)
+
+
+# pnl command
+
+
+@app.command("pnl")
+def pnl(
+    portfolio: Annotated[
+        str, typer.Option("--portfolio", "-p", help="Portfolio name.")
+    ],
+    mark: Annotated[
+        list[str],
+        typer.Option(
+            "--mark",
+            "-m",
+            help="Mark price for unrealized P&L, e.g. AAPL=185.50. Repeatable.",
+        ),
+    ] = [],  # noqa: B006
+) -> None:
+    """Show realized and unrealized P&L for all positions in a portfolio."""
+    marks = _parse_marks(mark)
+    try:
+        rows = service.get_portfolio_pnl(_repo(), portfolio, marks)
+    except PortfolioLedgerError as exc:
+        _abort(str(exc))
+        return
+    render.render_pnl(rows)
