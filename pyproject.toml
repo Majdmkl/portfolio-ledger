@@ -40,6 +40,7 @@ select = ["E", "W", "F", "I", "N", "UP", "B", "SIM", "ANN"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
+mypy_path = "src"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
