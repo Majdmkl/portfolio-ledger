@@ -50,11 +50,11 @@ class DuplicatePortfolioError(PortfolioLedgerError):
 
 
 class InstrumentNotFoundError(PortfolioLedgerError):
-    """Raised when an instrument ID does not match any stored instrument."""
+    """Raised when an instrument cannot be found by ID or symbol."""
 
-    def __init__(self, instrument_id: UUID) -> None:
-        self.instrument_id = instrument_id
-        super().__init__(f"Instrument not found: {instrument_id}")
+    def __init__(self, identifier: str) -> None:
+        self.identifier = identifier
+        super().__init__(f"Instrument not found: {identifier!r}")
 
 
 class DuplicateInstrumentError(PortfolioLedgerError):

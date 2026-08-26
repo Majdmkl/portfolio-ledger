@@ -59,7 +59,19 @@ class MemoryRepository:
         try:
             return self._instruments[instrument_id]
         except KeyError:
-            raise InstrumentNotFoundError(instrument_id) from None
+            raise InstrumentNotFoundError(str(instrument_id)) from None
+
+    def get_instrument_by_symbol(
+        self, portfolio_id: UUID, symbol: str
+    ) -> Instrument | None:
+        return next(
+            (
+                i
+                for i in self._instruments.values()
+                if i.portfolio_id == portfolio_id and i.symbol == symbol
+            ),
+            None,
+        )
 
     def list_instruments(self, portfolio_id: UUID) -> list[Instrument]:
         return [i for i in self._instruments.values() if i.portfolio_id == portfolio_id]

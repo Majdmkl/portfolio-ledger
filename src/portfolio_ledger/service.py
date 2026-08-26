@@ -4,10 +4,15 @@ Each function takes a Repository as its first argument so the CLI can swap
 backends (memory vs. json_store) without any change here.
 """
 
-from uuid import uuid4
+from datetime import datetime
+from decimal import Decimal
+from uuid import UUID, uuid4
 
-from portfolio_ledger.domain.errors import PortfolioNotFoundError
-from portfolio_ledger.domain.models import Instrument, Portfolio
+from portfolio_ledger.domain.errors import (
+    InstrumentNotFoundError,
+    PortfolioNotFoundError,
+)
+from portfolio_ledger.domain.models import Instrument, Portfolio, Trade, TradeDirection
 from portfolio_ledger.storage.repository import Repository
 
 
@@ -29,6 +34,16 @@ def _resolve_portfolio(repo: Repository, portfolio_name: str) -> Portfolio:
     return portfolio
 
 
+def _resolve_instrument(
+    repo: Repository, portfolio_id: UUID, symbol: str
+) -> Instrument:
+    """Look up an instrument by symbol within a portfolio."""
+    instrument = repo.get_instrument_by_symbol(portfolio_id, symbol.upper())
+    if instrument is None:
+        raise InstrumentNotFoundError(symbol.upper())
+    return instrument
+
+
 def create_instrument(
     repo: Repository, portfolio_name: str, symbol: str, name: str
 ) -> Instrument:
@@ -46,3 +61,52 @@ def create_instrument(
 def list_instruments(repo: Repository, portfolio_name: str) -> list[Instrument]:
     portfolio = _resolve_portfolio(repo, portfolio_name)
     return repo.list_instruments(portfolio.id)
+
+
+def record_trade(
+    repo: Repository,
+    portfolio_name: str,
+    symbol: str,
+    direction: TradeDirection,
+    quantity: Decimal,
+    price: Decimal,
+    timestamp: datetime,
+) -> Trade:
+    portfolio = _resolve_portfolio(repo, portfolio_name)
+    instrument = _resolve_instrument(repo, portfolio.id, symbol)
+    trade = Trade(
+        id=uuid4(),
+        instrument_id=instrument.id,
+        direction=direction,
+        quantity=quantity,
+        price=price,
+        timestamp=timestamp,
+    )
+    repo.add_trade(trade)
+    return trade
+
+
+def list_trades(
+    repo: Repository,
+    portfolio_name: str,
+    symbol: str | None = None,
+) -> list[tuple[Trade, Instrument]]:
+    """Return trades paired with their instrument, sorted by timestamp.
+
+    If symbol is given, returns only trades for that instrument.
+    Otherwise returns all trades across every instrument in the portfolio.
+    """
+    portfolio = _resolve_portfolio(repo, portfolio_name)
+
+    if symbol is not None:
+        instrument = _resolve_instrument(repo, portfolio.id, symbol)
+        instruments = [instrument]
+    else:
+        instruments = repo.list_instruments(portfolio.id)
+
+    pairs: list[tuple[Trade, Instrument]] = []
+    for instrument in instruments:
+        for trade in repo.list_trades(instrument.id):
+            pairs.append((trade, instrument))
+
+    return sorted(pairs, key=lambda p: p[0].timestamp)
