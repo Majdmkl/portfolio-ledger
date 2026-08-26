@@ -35,7 +35,10 @@ class MemoryRepository:
         try:
             return self._portfolios[portfolio_id]
         except KeyError:
-            raise PortfolioNotFoundError(portfolio_id) from None
+            raise PortfolioNotFoundError(str(portfolio_id)) from None
+
+    def get_portfolio_by_name(self, name: str) -> Portfolio | None:
+        return next((p for p in self._portfolios.values() if p.name == name), None)
 
     def list_portfolios(self) -> list[Portfolio]:
         return sorted(self._portfolios.values(), key=lambda p: p.name)
