@@ -12,7 +12,6 @@ from portfolio_ledger.cli import render
 from portfolio_ledger.domain.errors import PortfolioLedgerError
 from portfolio_ledger.domain.models import TradeDirection
 from portfolio_ledger.storage.json_store import JsonStore, SchemaVersionError
-from portfolio_ledger.storage.memory import MemoryRepository
 from portfolio_ledger.storage.repository import Repository
 
 app = typer.Typer(help="portfolio-ledger: track trades and compute P&L.")
@@ -27,9 +26,7 @@ app.add_typer(trade_app, name="trade")
 
 class _State:
     def __init__(self) -> None:
-        # Default used only when commands are invoked without the app callback
-        # (e.g. during testing). In normal CLI use the callback always runs first.
-        self.repo: Repository = MemoryRepository()
+        self.repo: Repository | None = None
 
 
 _state = _State()
@@ -55,6 +52,8 @@ def configure(
 
 
 def _repo() -> Repository:
+    if _state.repo is None:
+        raise RuntimeError("Repository not initialized — callback did not run.")
     return _state.repo
 
 
