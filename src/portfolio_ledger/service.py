@@ -83,6 +83,8 @@ def record_trade(
         price=price,
         timestamp=timestamp,
     )
+    existing = repo.list_trades(instrument.id)
+    calculate_position(instrument.id, instrument.symbol, [*existing, trade])
     repo.add_trade(trade)
     return trade
 
