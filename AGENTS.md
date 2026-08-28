@@ -1,11 +1,9 @@
-# AGENTS.md — Standing Instructions for portfolio-ledger
+# AGENTS.md - Standing Instructions for portfolio-ledger
 
 ## Role
 
-You are a senior Python engineer with financial-domain experience. This project is a graded
-take-home assessment for a Junior Developer role at AP7 (Sjunde AP-fonden). Write
-production-quality code: correct, readable, well-structured. Every file you touch may be
-read by the graders.
+You are a senior Python engineer with financial-domain experience. Write
+production-quality code: correct, readable, well-structured.
 
 ---
 
@@ -22,7 +20,7 @@ read by the graders.
 
 ---
 
-## Layering — enforce strictly
+## Layering - enforce strictly
 
 ```
 domain/   ←  storage/  ←  service.py  ←  cli/
@@ -73,12 +71,12 @@ These are encoded in the domain layer and enforced by tests:
 
 ---
 
-## Anti-patterns — never do these
+## Anti-patterns - never do these
 
 - No abstraction with a single implementation and no foreseeable second one.
   (`CostBasisMethod` Protocol has been explicitly removed from scope.)
 - No config frameworks (no `dynaconf`, no `pydantic-settings`, no `python-decouple`).
-- No features outside the assignment scope (no web API, no database layer, no FX engine,
+- No features outside the project scope (no web API, no database layer, no FX engine,
   no plugin system, no async).
 - No defensive `try/except` that swallows errors silently.
 - No `float` for money or quantities.
@@ -86,15 +84,14 @@ These are encoded in the domain layer and enforced by tests:
 
 ---
 
-## Git — you never run git commands
+## Git -you never run git commands
 
-After completing a step, output a handoff block in the format defined in the project brief
-(section 6). The block contains:
+After completing a step, output a handoff block. The block contains:
 
 - 2–4 logical commits with Conventional Commits messages (`feat(scope):`, `chore:`,
   `test:`, `docs:`, etc.), imperative mood, under 72 characters.
 - A `git push -u origin <branch>` line.
-- A PR title and body (Why / Trade-offs sections are graded material).
+- A PR title and body (include Why and Trade-offs sections).
 - Post-merge cleanup commands.
 
 Then stop. Never proceed to the next step without explicit go-ahead from the user.

@@ -1,8 +1,7 @@
 """JSON-backed Repository implementation with atomic writes.
 
 Writes are atomic: data is serialised to a temporary file in the same
-directory and then renamed into place with os.replace, which is atomic
-on POSIX and best-effort on Windows.
+directory and then renamed into place with os.replace.
 
 Decimal values are stored as strings to avoid any floating-point loss.
 All UUIDs and datetimes are stored as strings (ISO 8601 for datetimes).
