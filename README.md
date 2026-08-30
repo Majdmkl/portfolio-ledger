@@ -48,75 +48,76 @@ environment variable) to specify where data is stored. Default:
 
 ### Portfolios
 
-```bash
-# Create
-$ pledger portfolio create "AP7 Demo" --currency SEK
-Created portfolio 'AP7 Demo' (SEK) [3f2a1b4c-8e7d-4a2f-b1c0-9d8e7f6a5b4c]
+```
+$ pledger portfolio create "Demo" --currency SEK
+Created portfolio 'Demo' (SEK) [dad3a0ca-f983-4b23-a500-fe6351d1e873]
 
-# List
 $ pledger portfolio list
- Name       Currency  ID
- ──────────────────────────────────────────────────────────────
- AP7 Demo   SEK       3f2a1b4c-8e7d-4a2f-b1c0-9d8e7f6a5b4c
+┏━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Name ┃ Currency ┃ ID                                   ┃
+┡━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Demo │ SEK      │ dad3a0ca-f983-4b23-a500-fe6351d1e873 │
+└──────┴──────────┴──────────────────────────────────────┘
 ```
 
 ### Instruments
 
-```bash
-# Create
-$ pledger instrument create SINCH "Sinch AB" --portfolio "AP7 Demo"
-Created instrument 'SINCH' (Sinch AB) [7c6b5a4e-3d2c-4f1e-a0b9-8c7d6e5f4a3b]
+```
+$ pledger instrument create SINCH "Sinch AB" --portfolio "Demo"
+Created instrument 'SINCH' (Sinch AB) [65372ba4-4aa7-481c-8ff0-5a9562fb7be3]
 
-# List
-$ pledger instrument list --portfolio "AP7 Demo"
- Symbol  Name      ID
- ──────────────────────────────────────────────────────────────
- SINCH   Sinch AB  7c6b5a4e-3d2c-4f1e-a0b9-8c7d6e5f4a3b
+$ pledger instrument list --portfolio "Demo"
+┏━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Symbol ┃ Name     ┃ ID                                   ┃
+┡━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ SINCH  │ Sinch AB │ 65372ba4-4aa7-481c-8ff0-5a9562fb7be3 │
+└────────┴──────────┴──────────────────────────────────────┘
 ```
 
 ### Trades
 
-```bash
-# Record buys and a sell
-$ pledger trade record SINCH BUY 100 10.00 --portfolio "AP7 Demo" \
-    --at 2024-01-10T09:00:00Z
+```
+$ pledger trade record SINCH BUY 100 10.00 --portfolio "Demo" --at 2024-01-10T09:00:00Z
 Recorded BUY 100 SINCH @ 10.00 on 2024-01-10 09:00 UTC
 
-$ pledger trade record SINCH BUY 50 16.00 --portfolio "AP7 Demo" \
-    --at 2024-01-20T09:00:00Z
+$ pledger trade record SINCH BUY 50 16.00 --portfolio "Demo" --at 2024-01-20T09:00:00Z
 Recorded BUY 50 SINCH @ 16.00 on 2024-01-20 09:00 UTC
 
-$ pledger trade record SINCH SELL 120 20.00 --portfolio "AP7 Demo" \
-    --at 2024-02-01T09:00:00Z
+$ pledger trade record SINCH SELL 120 20.00 --portfolio "Demo" --at 2024-02-01T09:00:00Z
 Recorded SELL 120 SINCH @ 20.00 on 2024-02-01 09:00 UTC
 
-# List all trades in the portfolio
-$ pledger trade list --portfolio "AP7 Demo"
- Date (UTC)    Symbol  Direction  Quantity   Price
- ──────────────────────────────────────────────────
- 2024-01-10 09:00  SINCH   BUY       100    10.00
- 2024-01-20 09:00  SINCH   BUY        50    16.00
- 2024-02-01 09:00  SINCH   SELL      120    20.00
+$ pledger trade list --portfolio "Demo"
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━┓
+┃ Date (UTC)       ┃ Symbol ┃ Direction ┃ Quantity ┃ Price ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━┩
+│ 2024-01-10 09:00 │ SINCH  │ BUY       │      100 │ 10.00 │
+│ 2024-01-20 09:00 │ SINCH  │ BUY       │       50 │ 16.00 │
+│ 2024-02-01 09:00 │ SINCH  │ SELL      │      120 │ 20.00 │
+└──────────────────┴────────┴───────────┴──────────┴───────┘
 ```
 
 ### P&L
 
-```bash
-# Realized only (no mark price supplied)
-$ pledger pnl --portfolio "AP7 Demo"
- Symbol  Qty  Avg Cost  Cost Basis  Realized P&L  Unrealized P&L  Total P&L
- ──────────────────────────────────────────────────────────────────────────
- SINCH    30     12.00      360.00        960.00             n/a        n/a
- ──────────────────────────────────────────────────────────────────────────
- TOTAL                               960.00             n/a        n/a
+```
+$ pledger pnl --portfolio "Demo"
+┏━━━━━━━━┳━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃        ┃     ┃          ┃            ┃    Realized ┃  Unrealized ┃           ┃
+┃ Symbol ┃ Qty ┃ Avg Cost ┃ Cost Basis ┃         P&L ┃         P&L ┃ Total P&L ┃
+┡━━━━━━━━╇━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ SINCH  │  30 │    12.00 │     360.00 │      960.00 │         n/a │       n/a │
+├────────┼─────┼──────────┼────────────┼─────────────┼─────────────┼───────────┤
+│ TOTAL  │     │          │            │      960.00 │         n/a │       n/a │
+└────────┴─────┴──────────┴────────────┴─────────────┴─────────────┴───────────┘
 
-# With a mark price for unrealized P&L
-$ pledger pnl --portfolio "AP7 Demo" --mark SINCH=22.00
- Symbol  Qty  Avg Cost  Cost Basis  Realized P&L  Unrealized P&L  Total P&L
- ──────────────────────────────────────────────────────────────────────────
- SINCH    30     12.00      360.00        960.00          300.00    1260.00
- ──────────────────────────────────────────────────────────────────────────
- TOTAL                               960.00          300.00    1260.00
+$ pledger pnl --portfolio "Demo" --mark SINCH=22.00
+┏━━━━━━━━┳━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃        ┃     ┃          ┃            ┃    Realized ┃  Unrealized ┃           ┃
+┃ Symbol ┃ Qty ┃ Avg Cost ┃ Cost Basis ┃         P&L ┃         P&L ┃ Total P&L ┃
+┡━━━━━━━━╇━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ SINCH  │  30 │    12.00 │     360.00 │      960.00 │      300.00 │   1260.00 │
+├────────┼─────┼──────────┼────────────┼─────────────┼─────────────┼───────────┤
+│ TOTAL  │     │          │            │      960.00 │      300.00 │   1260.00 │
+└────────┴─────┴──────────┴────────────┴─────────────┴─────────────┴───────────┘
 ```
 
 Realized P&L is green when positive, red when negative. Unrealized P&L shows
@@ -177,13 +178,25 @@ Short version:
 
 ---
 
+## Known limitations
+
+- **Negative numbers as positional arguments** require a `--` separator, e.g.
+  `pledger trade record SINCH BUY -- -10 5.00`. Without it the shell
+  interprets `-10` as a flag and produces a confusing error message.
+- **Read-only commands against a non-writable path** appear to succeed silently.
+  `pledger portfolio list --data-file /read-only/path.json` returns an empty
+  list rather than a permission error, because no write is attempted until a
+  mutation occurs.
+
+---
+
 ## What was not built and why
 
 | Feature | Reason |
 |---|---|
 | FX conversion | Out of scope; all instruments in one currency |
 | Fees / commissions | Not required; would complicate cost-basis math |
-| Dividends / corporate actions | Not required by assignment |
+| Dividends / corporate actions | Not required |
 | Web / REST API | Explicitly out of scope |
 | Database backend | JSON file is sufficient for stated data volumes |
 | FIFO cost basis | Not required; Swedish law mandates weighted average |
@@ -200,7 +213,7 @@ Short version:
 - Add a `portfolio delete` and `instrument delete` command with a confirmation
   prompt.
 - Implement FIFO cost basis as an optional `--method fifo` flag alongside
-  weighted average, using a `CostBasisMethod` Protocol.
+  weighted average.
 - Add FX support: store the exchange rate at time of trade, report P&L in a
   chosen reporting currency.
 
@@ -222,3 +235,7 @@ ruff format .
 
 CI runs all four checks on every push via GitHub Actions
 (`.github/workflows/ci.yml`).
+
+This project was developed with AI assistance (Claude Code by Anthropic).
+Data model design, P&L calculation method, architectural decisions, and
+all explicit instructions to the AI agent are the author's own.

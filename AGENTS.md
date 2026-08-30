@@ -84,7 +84,7 @@ These are encoded in the domain layer and enforced by tests:
 
 ---
 
-## Git -you never run git commands
+## Git - you never run git commands
 
 After completing a step, output a handoff block. The block contains:
 
