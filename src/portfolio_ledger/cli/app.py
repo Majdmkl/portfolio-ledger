@@ -53,7 +53,7 @@ def configure(
 
 def _repo() -> Repository:
     if _state.repo is None:
-        raise RuntimeError("Repository not initialized — callback did not run.")
+        raise RuntimeError("Repository not initialized - callback did not run.")
     return _state.repo
 
 
